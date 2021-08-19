@@ -7,6 +7,8 @@
         return mainCta;
     }
 
+    let isClose = false;
+
     // document.querySelector('.share-button-wrapper').innerHTML+=`<a class="webboard-cta" href="">test</a>`;
     document.querySelector('.share-button-wrapper').innerHTML+=`${elm_cta()}`;
     const webboard_cta = document.querySelector('.webboard-cta');
@@ -31,12 +33,10 @@
 
 
     const get_related_discussion = async (cat_id) => {
-        console.log('cat id', cat_id)
         const staging = 'https://moneyguru.vanillastaging.com/api/v2';
         const prod = 'https://webboard.moneyguru.co.th/api/v2/discussions'; 
         const response = await fetch(`${prod}?categoryID=${cat_id}&type=discussion&followed=false&pinOrder=first&page=1&limit=1&sort=dateInserted&expand=`);
         const data = await response.json();
-        console.log('data', data[0]);
         return data[0];
     }
 
@@ -52,7 +52,6 @@
                 key = k; 
             }
         })
-        console.log(data[key]);
         return data[key];
     }
 
@@ -61,10 +60,6 @@
         const prod = 'https://webboard.moneyguru.co.th/api/v2/users/'; 
         const response = await fetch(`${prod}${user_id}`);
         const data = await response.json();
-        console.log('user id ', user_id);
-        // const name = data.name;
-        // const profile_img = data.photoUrl;
-        // return {name, profile_img};
         return data;
     }
 
@@ -107,7 +102,7 @@
                 </div>
             </div>
 
-            <i class="fa fa-times"></i>      
+            <i class="fa fa-times close-popup"></i>   
 
             <hr/>
 
@@ -123,10 +118,10 @@
 
                 <div class="col-md-4">
                     <a href="${related_url}" class="row" rel="nofollow">
-                        <div class="img col-md-4">
+                        <div class="image col-md-4">
                             <img src="${related_profile_img}" alt="profile-image"/>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-8 info-container">
                             <div class="title">
                             ${related_title}
                             </div>
@@ -139,10 +134,10 @@
 
                 <div class="col-md-4">                        
                     <a href="${recommended_url}" class="row" rel="nofollow">
-                        <div class="img col-md-4">
+                        <div class="image col-md-4">
                             <img src="${recommended_profile_img}" alt="profile-image"/>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-8 info-container">
                             <div class="title">
                             ${recommended_title}
                             </div>
@@ -159,14 +154,37 @@
     
     const render_elm_popup = async () => {
         const elm =  await elm_popup();
-        document.querySelector('body').innerHTML+=elm
+        document.querySelector('body').innerHTML+=elm;
+        //close popup btn
+        document.querySelector('.webboard-popup .close-popup').onclick = close_popup;
+        //onscroll event
+        let lastScrollTop = 0;
+        jQuery(window).scroll(function(event){
+            const elm = jQuery('.webboard-popup');
+            var st = jQuery(this).scrollTop();
+            if (st > lastScrollTop){
+            isClose? '' : elm.slideUp('fast');
+                // downscroll code
+            } else {                
+              isClose? '' : elm.slideDown('fast');
+                // upscroll code
+            }
+            lastScrollTop = st;
+        });
+    
     }
+    
     render_elm_popup();
 
- })();
- 
+    const close_popup = () => {
+        isClose = true;
+        document.querySelector('.webboard-popup').style.display = 'none';
+    }
 
- 
+
+ })();
+  
+    
 //CSS part
 var sheet = document.createElement('style')
 sheet.innerHTML = `
@@ -176,7 +194,7 @@ sheet.innerHTML = `
         bottom: 0;
         margin-left: 25%;
         width: 743px;
-        padding: 0 11.5px;
+        padding: 0 11.5px 6px 11.5px;
         border-radius: 8px;
         box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.08);
         border: solid 1px rgba(0, 0, 0, 0.05);
@@ -217,22 +235,46 @@ sheet.innerHTML = `
         background-color: #77aa43;
         border-radius: 2px;
         margin-top: 4px;
-        padding: 3px 8.5px 4px;
+        padding: 8px 8.5px 8px;
         color: #fff;
         font-size: 18px;
         font-weight: 600;
         display: block;
         width: fit-content;
     }
+    .webboard-popup .image {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
     .webboard-popup img {
         width: 54px;
         height: 54px;
+        border-radius: 3px;
     }
     .webboard-popup .author-name {
         margin-top: 4px;
         font-size: 12px;
         font-weight: 300;
         color: #333;
+    }
+    .webboard-popup .info-container {
+        padding-left: 0px;
+    }
+    .webboard-popup .close-popup:hover {
+        cursor: pointer;
+    }
+    .swggAnimateSlide {
+        overflow-y: hidden;
+        transition: all 500ms linear;
+    }
+    .swggAnimateSlideUp {
+        border-bottom: 0 !important;
+        border-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+        max-height: 0 !important;
+        padding-bottom: 0 !important;
+        padding-top: 0 !important;
     }
 `;
 
