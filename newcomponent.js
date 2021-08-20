@@ -1,8 +1,11 @@
 (function() {
 
-    const discussion_link = `https://webboard.moneyguru.co.th/discussion/${vanilla_discussion_id}`;
+    const mobileDevice = (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+
+    let discussion_link = `https://webboard.moneyguru.co.th/discussion/${vanilla_discussion_id}`;
 
     const elm_cta = () => {
+        discussion_link = jQuery('#vanilla_discussion_embed .Author').length? discussion_link : 'https://webboard.moneyguru.co.th/entry/signin';
         const mainCta = `<a class="webboard-cta" href="${discussion_link}">ถามตอบเกี่ยวกับบทความนี้ ได้ที่นี่</a>`;
         return mainCta;
     }
@@ -63,7 +66,7 @@
         return data;
     }
 
-
+    
 
     const elm_popup = async () => {
         const related_discussion = await get_discussion_cat().then(cat_id =>get_related_discussion(cat_id));
@@ -81,22 +84,41 @@
         const recommended_author = await get_author(user_id);
         const recommended_author_name = recommended_author.name;
         const recommended_profile_img = recommended_author.photoUrl;
+        //check if login
+        discussion_link = jQuery('#vanilla_discussion_embed .Author').length? discussion_link : 'https://webboard.moneyguru.co.th/entry/signin';
 
-        const elm = `
+        const elm = mobileDevice? 
+        `
+        <div class="webboard-popup mobile">
+            <div class="row">
+                <div class="col-xs-8 webboard-popup-title">
+                    มีคำถามเกี่ยวกับบทความนี้?
+                </div>
+                <div class="col-xs-4">
+                    <a class="redirect-cta" href="${discussion_link}" rel="nofollow">
+                    ถามได้ที่นี่
+                    </a>
+                </div>
+            </div>
+            <i class="fa fa-times close-popup"></i>   
+        </div>
+        `
+        :
+        `
         <div class="webboard-popup">
             <div class="row">
                 <div class="col-md-4">
-                    <div class="row webboard-popup-titie">
+                    <div class="row webboard-popup-title">
                     เกี่ยวกับบทความ
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="row webboard-popup-titie">
+                    <div class="row webboard-popup-title">
                     กระทู้ที่เกี่ยวข้อง
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="row webboard-popup-titie">
+                    <div class="row webboard-popup-title">
                     กระทู้ที่น่าสนใจ
                     </div>
                 </div>
@@ -192,7 +214,7 @@ sheet.innerHTML = `
         font-family: Kanit;
         position: fixed;
         bottom: 0;
-        margin-left: 25%;
+        margin-left: 20%;
         width: 743px;
         padding: 0 11.5px 6px 11.5px;
         border-radius: 8px;
@@ -209,7 +231,7 @@ sheet.innerHTML = `
         margin-left: 0;
         margin-right: 0;
     }
-    .row.webboard-popup-titie {  
+    .row.webboard-popup-title {  
         font-size: 16px;
         font-weight: 500;
         font-stretch: normal;
@@ -263,18 +285,17 @@ sheet.innerHTML = `
     .webboard-popup .close-popup:hover {
         cursor: pointer;
     }
-    .swggAnimateSlide {
-        overflow-y: hidden;
-        transition: all 500ms linear;
+   
+    .webboard-popup.mobile {
+        width: 94%;
+        margin-left: 2%;
+        padding-top: 6px;
     }
-    .swggAnimateSlideUp {
-        border-bottom: 0 !important;
-        border-top: 0 !important;
-        margin-bottom: 0 !important;
-        margin-top: 0 !important;
-        max-height: 0 !important;
-        padding-bottom: 0 !important;
-        padding-top: 0 !important;
+    .webboard-popup.mobile .webboard-popup-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #076b9c;
+        margin-top: 12px;
     }
 `;
 
